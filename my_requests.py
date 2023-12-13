@@ -1,44 +1,34 @@
 import sqlite3
-"""
-    object_profit (название объекта) - прибыль с объекта
-    number_of_tools (название объекта) - какие вещи и в каком количестве
-    richest_customer (int или none) - самый богатый человек (топ 5)
-    technic_life - время жизни до замены техники
-    unsold_apartments - не проданные квартиры
-    sold_apartments - проданные квартиры
-    construction_stage (название объекта) - стадия стройки
-"""
+import pandas as pd
 
 
-def get_info(command, return_columns=True):
+def get_info(command):
     with sqlite3.connect('construction_company.db') as connection:
-        cursor = connection.cursor()
-        cursor.execute(command)
-        info = cursor.fetchall()
-        #columns = cursor.keys()
-    if return_columns:
-        return info#, columns
-    return info
+        df = pd.read_sql_query(command, connection)
+    return df
 
 
-def object_profit(object_profit = None):
+def select_all_from_table(table_name):
+    return get_info("SELECT * FROM {}".format(table_name))
+
+
+def object_profit():
     command = " SELECT \
-	                obj.name AS object_id, \
+                    obj.name AS object_name, \
                     COALESCE(tp.sum_price, 0) - obj.budget_forecast AS income \
                 FROM objects AS obj \
-	                LEFT JOIN ( \
-		                SELECT \
-			                object_id, \
-			                SUM(price) AS sum_price \
-		                FROM flats \
-		                WHERE \
-			                buyer_id IS NOT NULL \
-		                GROUP BY \
-			                object_id \
-		                ) AS tp \
-			                ON obj.object_id = tp.object_id;"
+                    LEFT JOIN ( \
+                        SELECT \
+                            object_id, \
+                            SUM(price) AS sum_price \
+                        FROM flats \
+                        WHERE \
+                            buyer_id IS NOT NULL \
+                        GROUP BY \
+                            object_id \
+                        ) AS tp \
+                            ON obj.object_id = tp.object_id;"
     return get_info(command)
-    
 
 
 def number_of_tools(object_name=None):
@@ -98,6 +88,7 @@ def richest_customer(n=1):
 def technic_life():
     command = " SELECT \
                     technic_type, \
+                    brand, \
                     (julianday( \
                         date( \
                             SUBSTR(day_of_purchase, 7, 4) || '-' || \
@@ -111,36 +102,68 @@ def technic_life():
 
 
 def unsold_apartments(object_name=None):
-    command = " SELECT \
-                    o.name AS project_name, \
-                    o.location AS location, \
-                    f.floor AS floor, \
-                    f.number_of_rooms AS number_of_rooms, \
-                    f.square AS square, \
-                    f.price AS price \
-                FROM flats AS f \
-                    INNER JOIN objects AS o \
-                WHERE \
-                    f.buyer_id IS NULL \
-                ORDER BY \
-                    o.name, f.price;"
+    if object_name is None:
+        command = " SELECT \
+                        o.name AS project_name, \
+                        o.location AS location, \
+                        f.floor AS floor, \
+                        f.number_of_rooms AS number_of_rooms, \
+                        f.square AS square, \
+                        f.price AS price \
+                    FROM flats AS f \
+                        INNER JOIN objects AS o \
+                    WHERE \
+                        f.buyer_id IS NULL \
+                    ORDER BY \
+                        o.name, f.price;"
+    else:
+        command = " SELECT \
+                        o.name AS project_name, \
+                        o.location AS location, \
+                        f.floor AS floor, \
+                        f.number_of_rooms AS number_of_rooms, \
+                        f.square AS square, \
+                        f.price AS price \
+                    FROM flats AS f \
+                        INNER JOIN objects AS o \
+                    WHERE \
+                        f.buyer_id IS NULL AND\
+                        o.name = '{}'\
+                    ORDER BY \
+                        o.name, f.price;".format(object_name)
     return get_info(command)
 
 
 def sold_apartments(object_name=None):
-    command = " SELECT \
-                    o.name AS project_name, \
-                    o.location AS location, \
-                    f.floor AS floor, \
-                    f.number_of_rooms AS number_of_rooms, \
-                    f.square AS square, \
-                    f.price AS price \
-                FROM flats AS f \
-                    INNER JOIN objects AS o \
-                WHERE \
-                    f.buyer_id IS NOT NULL \
-                ORDER BY \
-                    o.name, f.price;"
+    if object_name is None:
+        command = " SELECT \
+                        o.name AS project_name, \
+                        o.location AS location, \
+                        f.floor AS floor, \
+                        f.number_of_rooms AS number_of_rooms, \
+                        f.square AS square, \
+                        f.price AS price \
+                    FROM flats AS f \
+                        INNER JOIN objects AS o \
+                    WHERE \
+                        f.buyer_id IS NOT NULL \
+                    ORDER BY \
+                        o.name, f.price;"
+    else:
+        command = " SELECT \
+                        o.name AS project_name, \
+                        o.location AS location, \
+                        f.floor AS floor, \
+                        f.number_of_rooms AS number_of_rooms, \
+                        f.square AS square, \
+                        f.price AS price \
+                    FROM flats AS f \
+                        INNER JOIN objects AS o \
+                    WHERE \
+                        f.buyer_id IS NOT NULL AND\
+                        o.name = '{}'\
+                    ORDER BY \
+                        o.name, f.price;".format(object_name)
     return get_info(command)
 
 

@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+from my_requests import select_all_from_table
 
 
 def add_table_from_csv(filepath_to_csv, table_name):
@@ -8,9 +9,7 @@ def add_table_from_csv(filepath_to_csv, table_name):
         df.to_sql(table_name, connection, if_exists='replace')
 
 
-def select_all_from_table(table_name):
-    with sqlite3.connect('construction_company.db') as connection:
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM {}".format(table_name))
-        info = cursor.fetchall()
-    return info
+def print_all_from_table(table_name):
+    res = select_all_from_table(table_name)
+    for x in res:
+        print(x)
