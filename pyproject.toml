@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "analytics-construction-company"
+version = "0.1.0"
+description = ""
+authors = ["Vladislav Lapikov <99816762+wh0t-is-love@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "analytics_construction_company"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.1.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
