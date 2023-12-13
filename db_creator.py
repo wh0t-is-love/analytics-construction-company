@@ -9,6 +9,11 @@ def add_all_tables():
     add_table_from_csv('csv/technic.csv', 'technic')
     add_table_from_csv('csv/tools.csv', 'tools')
     add_table_from_csv('csv/workers.csv', 'workers')
+    add_table_from_csv('csv/tmp_material.csv', 'tmp_material')
+    add_table_from_csv('csv/tmp_technic.csv', 'tmp_technic')
+    add_table_from_csv('csv/tmp_tools.csv', 'tmp_tools')
+    add_table_from_csv('csv/tmp_workers.csv', 'tmp_workers')
+    
 
 
 def print_all_from_table(table_name):
